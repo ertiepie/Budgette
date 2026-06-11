@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "restart": "sh scripts/restart-dev.sh",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
