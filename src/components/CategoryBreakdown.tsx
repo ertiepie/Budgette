@@ -74,6 +74,11 @@ function renderCategoryLabel({
 }
 
 export function CategoryBreakdown({ categoryTotals }: CategoryBreakdownProps) {
+  const totalSpent = categoryTotals.reduce(
+    (sum, category) => sum + category.total,
+    0,
+  );
+
   return (
     <section className="rounded-lg border border-white/70 bg-white/85 p-4 shadow-soft backdrop-blur">
       <h2 className="text-xl font-semibold text-slate-950">Category breakdown</h2>
@@ -138,6 +143,17 @@ export function CategoryBreakdown({ categoryTotals }: CategoryBreakdownProps) {
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t border-slate-300 text-slate-950">
+                  <td className="py-2 pr-3 font-semibold">Total</td>
+                  <td className="py-2 pr-3 text-right font-bold">
+                    {formatCurrency(totalSpent)}
+                  </td>
+                  <td className="py-2 text-right font-semibold">
+                    {formatPercent(100)}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </>
