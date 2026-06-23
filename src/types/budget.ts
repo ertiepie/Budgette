@@ -1,3 +1,5 @@
+import type { Account } from "../lib/accounts";
+
 export type MonthKey = string;
 
 export type BudgetMonth = {
@@ -8,6 +10,7 @@ export type BudgetMonth = {
 export type Expense = {
   id: string;
   date: string;
+  account?: Account;
   category: string;
   description: string;
   cost: number;
@@ -42,8 +45,19 @@ export type WeeklyTotal = {
   total: number;
 };
 
+export type MonthlyTotal = {
+  monthKey: MonthKey;
+  total: number;
+};
+
 export type CategoryTotal = {
   category: string;
+  total: number;
+  percentage: number;
+};
+
+export type AccountTotal = {
+  account: string;
   total: number;
   percentage: number;
 };

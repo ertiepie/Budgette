@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useState } from "react";
 import { format } from "date-fns";
+import { accountOptions, type Account } from "../lib/accounts";
 import { getMonthKey, inputDateFormat } from "../lib/budget";
 import type { Expense, MonthKey } from "../types/budget";
 
@@ -192,7 +193,7 @@ export const ExpenseForm = forwardRef<HTMLElement, ExpenseFormProps>(function Ex
           </button>
         ) : null}
       </div>
-      <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[150px_minmax(150px,1fr)_minmax(300px,2fr)_130px_95px_95px_150px] xl:items-end" onSubmit={handleSubmit}>
+      <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[140px_minmax(130px,1fr)_minmax(130px,1fr)_minmax(220px,2fr)_110px_70px_70px_140px] xl:items-end" onSubmit={handleSubmit}>
         <label>
           <span className="text-sm font-medium text-slate-700">Date</span>
           <input
@@ -202,6 +203,26 @@ export const ExpenseForm = forwardRef<HTMLElement, ExpenseFormProps>(function Ex
             value={draft.date}
             onChange={(event) => setDraft({ ...draft, date: event.target.value })}
           />
+        </label>
+        <label>
+          <span className="text-sm font-medium text-slate-700">Account</span>
+          <select
+            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-sky-500 transition focus:ring-2"
+            value={draft.account ?? ""}
+            onChange={(event) =>
+              setDraft({
+                ...draft,
+                account: (event.target.value || undefined) as Account | undefined,
+              })
+            }
+          >
+            <option value="">Select...</option>
+            {accountOptions.map((account) => (
+              <option key={account} value={account}>
+                {account}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           <span className="text-sm font-medium text-slate-700">Category</span>
@@ -239,34 +260,38 @@ export const ExpenseForm = forwardRef<HTMLElement, ExpenseFormProps>(function Ex
             onChange={(event) => setDraft({ ...draft, cost: Number(event.target.value) })}
           />
         </label>
-        <label className="flex h-[42px] items-center justify-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 sm:col-span-2 xl:col-span-1">
-          <input
-            className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-            type="checkbox"
-            checked={Boolean(draft.isMonthly)}
-            onChange={(event) =>
-              setDraft({
-                ...draft,
-                isMonthly: event.target.checked,
-                isVariableMonthly: event.target.checked
-                  ? draft.isVariableMonthly
-                  : false,
-              })
-            }
-          />
-          Monthly
+        <label className="sm:col-span-2 xl:col-span-1">
+          <span className="text-sm font-medium text-slate-700">Monthly</span>
+          <span className="mt-1 flex h-[42px] items-center justify-center rounded-md border border-slate-200 px-3 py-2">
+            <input
+              className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+              type="checkbox"
+              checked={Boolean(draft.isMonthly)}
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  isMonthly: event.target.checked,
+                  isVariableMonthly: event.target.checked
+                    ? draft.isVariableMonthly
+                    : false,
+                })
+              }
+            />
+          </span>
         </label>
-        <label className="flex h-[42px] items-center justify-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 sm:col-span-2 xl:col-span-1">
-          <input
-            className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={!draft.isMonthly}
-            type="checkbox"
-            checked={Boolean(draft.isVariableMonthly)}
-            onChange={(event) =>
-              setDraft({ ...draft, isVariableMonthly: event.target.checked })
-            }
-          />
-          Variable
+        <label className="sm:col-span-2 xl:col-span-1">
+          <span className="text-sm font-medium text-slate-700">Variable</span>
+          <span className="mt-1 flex h-[42px] items-center justify-center rounded-md border border-slate-200 px-3 py-2">
+            <input
+              className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!draft.isMonthly}
+              type="checkbox"
+              checked={Boolean(draft.isVariableMonthly)}
+              onChange={(event) =>
+                setDraft({ ...draft, isVariableMonthly: event.target.checked })
+              }
+            />
+          </span>
         </label>
         <button
           className="h-[42px] rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 sm:col-span-2 xl:col-span-1"
@@ -275,7 +300,7 @@ export const ExpenseForm = forwardRef<HTMLElement, ExpenseFormProps>(function Ex
           {editingExpense ? "Save changes" : "Add expense"}
         </button>
         {editingExpense?.isProjected || editingExpense?.isMonthly ? (
-          <fieldset className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700 sm:col-span-2 xl:col-span-7">
+          <fieldset className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700 sm:col-span-2 xl:col-span-8">
             <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Apply changes to
             </legend>

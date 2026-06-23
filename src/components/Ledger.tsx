@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
 import type { Expense } from "../types/budget";
+import { accountOptions, type Account } from "../lib/accounts";
 import { sortExpensesByDate } from "../lib/budget";
 import { formatCurrency } from "../lib/format";
 
@@ -12,7 +13,10 @@ type LedgerProps = {
   onUpdate: (expense: Expense) => void;
 };
 
-type LedgerDraft = Pick<Expense, "category" | "cost" | "date" | "description">;
+type LedgerDraft = Pick<
+  Expense,
+  "account" | "category" | "cost" | "date" | "description"
+>;
 
 function canEditInline(expense: Expense) {
   return (
@@ -25,6 +29,7 @@ function canEditInline(expense: Expense) {
 
 function createLedgerDraft(expense: Expense): LedgerDraft {
   return {
+    account: expense.account,
     category: expense.category,
     cost: expense.cost,
     date: expense.date,
@@ -76,6 +81,7 @@ export function Ledger({
 
     onUpdate({
       ...expense,
+      account: draft.account,
       category: draft.category.trim() || "Uncategorized",
       cost: Number(draft.cost),
       date: draft.date,
@@ -113,10 +119,11 @@ export function Ledger({
       </div>
       {isCollapsed ? null : (
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] table-fixed text-left text-sm">
+        <table className="w-full min-w-[920px] table-fixed text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
               <th className="w-32 py-2 pr-3">Date</th>
+              <th className="w-40 py-2 pr-3">Account</th>
               <th className="w-40 py-2 pr-3">Category</th>
               <th className="py-2 pr-3">Description</th>
               <th className="w-28 py-2 pr-3 text-right">Cost</th>
@@ -145,6 +152,31 @@ export function Ledger({
                       />
                     ) : (
                       format(parseISO(expense.date), "MMM d")
+                    )}
+                  </td>
+                  <td className="py-2 pr-3 text-slate-700">
+                    {isInlineEditing ? (
+                      <select
+                        className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm outline-none ring-sky-500 transition focus:ring-2"
+                        value={draft.account ?? ""}
+                        onChange={(event) =>
+                          setDraft({
+                            ...draft,
+                            account: (event.target.value || undefined) as
+                              | Account
+                              | undefined,
+                          })
+                        }
+                      >
+                        <option value="">Select...</option>
+                        {accountOptions.map((account) => (
+                          <option key={account} value={account}>
+                            {account}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      expense.account ?? <span className="text-slate-400">Select...</span>
                     )}
                   </td>
                   <td className="py-2 pr-3 font-medium text-slate-900">

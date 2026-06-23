@@ -1,21 +1,25 @@
 import { useMemo, useRef, useState } from "react";
 import { addMonths, format, parseISO } from "date-fns";
 import { AnnualCategoryPlanning } from "./components/AnnualCategoryPlanning";
+import { AccountBreakdown } from "./components/AccountBreakdown";
 import { BackupRestore } from "./components/BackupRestore";
 import { CalendarView } from "./components/CalendarView";
 import { CategoryBreakdown } from "./components/CategoryBreakdown";
 import { ExpenseForm } from "./components/ExpenseForm";
 import { Ledger } from "./components/Ledger";
 import { MonthSetup } from "./components/MonthSetup";
+import { MonthlyTotals } from "./components/MonthlyTotals";
 import { SummaryCards } from "./components/SummaryCards";
 import { WeeklyTotals } from "./components/WeeklyTotals";
 import { useBudgetData } from "./hooks/useBudgetData";
 import {
   calculateMonthSummary,
+  getAccountTotals,
   getAnnualCategoryTotals,
   getCategoryTotals,
   getExpensesForMonth,
   getMonthKey,
+  getMonthlyTotalsToDate,
   inputDateFormat,
   getWeeklyTotals,
 } from "./lib/budget";
@@ -70,8 +74,16 @@ function App() {
     () => getWeeklyTotals(monthlyExpenses, selectedMonth),
     [monthlyExpenses, selectedMonth],
   );
+  const monthlyTotalsToDate = useMemo(
+    () => getMonthlyTotalsToDate(data, selectedMonth),
+    [data, selectedMonth],
+  );
   const categoryTotals = useMemo(
     () => getCategoryTotals(monthlyExpenses),
+    [monthlyExpenses],
+  );
+  const accountTotals = useMemo(
+    () => getAccountTotals(monthlyExpenses),
     [monthlyExpenses],
   );
   const annualCategoryTotals = useMemo(
@@ -170,7 +182,7 @@ function App() {
 
         <SummaryCards summary={summary} />
 
-        <section className="grid gap-3 rounded-lg border border-white/70 bg-white/85 p-4 text-sm shadow-soft backdrop-blur sm:grid-cols-3">
+        <section className="grid gap-3 rounded-lg border border-white/70 bg-white/85 p-4 text-sm text-slate-700 shadow-soft backdrop-blur sm:grid-cols-3">
           <p>
             Previous rollover:{" "}
             <span
@@ -257,6 +269,7 @@ function App() {
 
         <div className="grid gap-5 xl:grid-cols-2">
           <div className="min-w-0 flex flex-col gap-5">
+            <AccountBreakdown accountTotals={accountTotals} />
             <CategoryBreakdown categoryTotals={categoryTotals} />
             <CalendarView expenses={monthlyExpenses} selectedMonth={selectedMonth} />
           </div>
@@ -266,6 +279,10 @@ function App() {
               mode={annualCategoryMode}
               selectedMonth={selectedMonth}
               onModeChange={setAnnualCategoryMode}
+            />
+            <MonthlyTotals
+              monthlyTotals={monthlyTotalsToDate}
+              selectedMonth={selectedMonth}
             />
             <WeeklyTotals weeklyTotals={weeklyTotals} />
           </div>

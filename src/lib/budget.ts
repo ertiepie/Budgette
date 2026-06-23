@@ -16,6 +16,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import type {
+  AccountTotal,
   BudgetData,
   BudgetMonth,
   AnnualCategoryMode,
@@ -23,6 +24,7 @@ import type {
   CategoryTotal,
   Expense,
   MonthKey,
+  MonthlyTotal,
   MonthlySummary,
   WeeklyTotal,
 } from "../types/budget";
@@ -227,6 +229,22 @@ export function getWeeklyTotals(
   return weeks;
 }
 
+export function getMonthlyTotalsToDate(
+  data: BudgetData,
+  monthKey: MonthKey,
+): MonthlyTotal[] {
+  const selectedYear = monthKey.slice(0, 4);
+
+  return data.months
+    .map((month) => month.id)
+    .filter((id) => id.startsWith(`${selectedYear}-`) && id <= monthKey)
+    .sort((a, b) => a.localeCompare(b))
+    .map((id) => ({
+      monthKey: id,
+      total: sumExpenses(getExpensesForMonth(data.expenses, id)),
+    }));
+}
+
 export function getCategoryTotals(expenses: Expense[]): CategoryTotal[] {
   const spendingOnly = expenses.filter((expense) => expense.cost > 0);
   const totalSpent = sumExpenses(spendingOnly);
@@ -238,6 +256,24 @@ export function getCategoryTotals(expenses: Expense[]): CategoryTotal[] {
   return Object.entries(grouped)
     .map(([category, total]) => ({
       category,
+      total,
+      percentage: totalSpent > 0 ? (total / totalSpent) * 100 : 0,
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
+export function getAccountTotals(expenses: Expense[]): AccountTotal[] {
+  const spendingOnly = expenses.filter((expense) => expense.cost > 0);
+  const totalSpent = sumExpenses(spendingOnly);
+  const grouped = spendingOnly.reduce<Record<string, number>>((groups, expense) => {
+    const account = expense.account ?? "Unassigned";
+    groups[account] = (groups[account] ?? 0) + expense.cost;
+    return groups;
+  }, {});
+
+  return Object.entries(grouped)
+    .map(([account, total]) => ({
+      account,
       total,
       percentage: totalSpent > 0 ? (total / totalSpent) * 100 : 0,
     }))

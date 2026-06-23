@@ -1,9 +1,122 @@
 import { useEffect, useMemo, useState } from "react";
+import type { Account } from "../lib/accounts";
 import type { BudgetData, BudgetMonth, Expense } from "../types/budget";
 import { seedData } from "../lib/seed";
 import { getPreviousMonthKey, upsertMonth } from "../lib/budget";
 
 const storageKey = "budgette:v1";
+const canonicalRentSeriesId = "628cc12f-617e-4fb4-968f-01535ec6eb7d";
+const rentSeriesEndMonth = "2026-10";
+
+const historicalAccountStartDate = "2026-01-01";
+const historicalAccountEndDate = "2026-06-01";
+const appleCardRecurringDescriptions = [
+  "adobe",
+  "apple one",
+  "chatgpt",
+  "claude",
+  "digital ocean",
+  "digitalocean",
+  "hp instant ink",
+  "netflix",
+  "ny times games",
+  "spotify",
+  "the new york times",
+  "yoga kinda rocks",
+];
+
+function inferHistoricalAccount(expense: Expense): Account | undefined {
+  const description = expense.description.toLowerCase();
+
+  if (expense.id.startsWith("apple-card-")) {
+    return "Apple Card";
+  }
+
+  if (expense.id.startsWith("chase-visa-")) {
+    return "Chase Visa";
+  }
+
+  if (expense.id.startsWith("checking-")) {
+    return "CCU Checking";
+  }
+
+  if (description.includes("whole foods") || description.includes("amazon")) {
+    return "Chase Visa";
+  }
+
+  if (
+    description === "apple" ||
+    appleCardRecurringDescriptions.some((item) => description.includes(item))
+  ) {
+    return "Apple Card";
+  }
+
+  if (
+    description === "ccu" ||
+    description === "the louisa" ||
+    description.includes("comcast-xfinity") ||
+    description.includes("louisa - electric/water")
+  ) {
+    return "CCU Checking";
+  }
+
+  return undefined;
+}
+
+function backfillHistoricalAccounts(data: BudgetData): BudgetData {
+  return {
+    ...data,
+    expenses: data.expenses.map((expense) => {
+      if (
+        expense.account ||
+        expense.date < historicalAccountStartDate ||
+        expense.date >= historicalAccountEndDate
+      ) {
+        return expense;
+      }
+
+      const account = inferHistoricalAccount(expense);
+      return account ? { ...expense, account } : expense;
+    }),
+  };
+}
+
+function repairRentSeries(data: BudgetData): BudgetData {
+  const canonicalSeries = data.expenses.find(
+    (expense) => expense.id === canonicalRentSeriesId,
+  );
+
+  if (!canonicalSeries) {
+    return data;
+  }
+
+  return {
+    ...data,
+    expenses: data.expenses
+      .filter(
+        (expense) =>
+          expense.id === canonicalRentSeriesId ||
+          expense.description !== "The Louisa" ||
+          expense.category !== "Rent" ||
+          expense.date >= "2026-11-01",
+      )
+      .map((expense) =>
+        expense.id === canonicalRentSeriesId
+          ? {
+              ...expense,
+              account: "CCU Checking",
+              cost: 1711,
+              date: "2026-01-01",
+              isMonthly: true,
+              isProjected: false,
+              isVariableMonthly: false,
+              recurrenceEndMonth: rentSeriesEndMonth,
+              recurringExpenseId: undefined,
+            }
+          : expense,
+      ),
+  };
+}
 
 function createId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -47,10 +160,12 @@ function loadBudgetData(): BudgetData {
 
   try {
     const parsed = JSON.parse(storedData) as BudgetData;
-    return {
-      months: Array.isArray(parsed.months) ? parsed.months : seedData.months,
-      expenses: Array.isArray(parsed.expenses) ? parsed.expenses : seedData.expenses,
-    };
+    return repairRentSeries(
+      backfillHistoricalAccounts({
+        months: Array.isArray(parsed.months) ? parsed.months : seedData.months,
+        expenses: Array.isArray(parsed.expenses) ? parsed.expenses : seedData.expenses,
+      }),
+    );
   } catch {
     return seedData;
   }
