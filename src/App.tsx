@@ -139,10 +139,10 @@ function App() {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-rose-600">
-              Budgette
+              Monthly Spending Tracking & Forecasting
             </p>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              Monthly spending dashboard
+              Budgette
             </h1>
             <p className="mt-1 text-sm text-slate-600 lg:whitespace-nowrap">
               Track expenses, rollover, and the amount you can spend each day

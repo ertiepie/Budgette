@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "restart": "sh scripts/restart-dev.sh",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",

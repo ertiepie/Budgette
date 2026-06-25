@@ -14,6 +14,8 @@ A Vite + React + TypeScript monthly spending dashboard for tracking available mo
 
 ## Run Locally
 
+You need Node.js 20.19 or newer. The app is just a project folder; dependencies are installed from `package.json` and `package-lock.json`.
+
 ```bash
 npm install
 npm run dev
@@ -31,7 +33,22 @@ http://localhost:5173/
 npm run build
 ```
 
+To preview the production build locally:
+
+```bash
+npm run preview
+```
+
 ## Data
 
 Budget months and expenses are stored in browser `localStorage` under `budgette:v1`.
-The app ships with sample seed data for the previous, current, and next month. Use **Reset sample data** in the dashboard to restore it.
+New installs start with an empty budget. Data stays in the browser unless it is exported or restored with the backup tools in the app.
+
+## Sharing
+
+Send the project folder without `node_modules`, `dist`, or `backups`. Your friend can unzip or clone it, then run:
+
+```bash
+npm install
+npm run dev
+```

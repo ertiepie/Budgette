@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Account } from "../lib/accounts";
 import type { BudgetData, BudgetMonth, Expense } from "../types/budget";
-import { seedData } from "../lib/seed";
 import { getPreviousMonthKey, upsertMonth } from "../lib/budget";
 
 const storageKey = "budgette:v1";
+const emptyBudgetData: BudgetData = {
+  months: [],
+  expenses: [],
+};
 const canonicalRentSeriesId = "628cc12f-617e-4fb4-968f-01535ec6eb7d";
 const rentSeriesEndMonth = "2026-10";
 
@@ -155,19 +158,19 @@ function isBudgetData(value: unknown): value is BudgetData {
 function loadBudgetData(): BudgetData {
   const storedData = localStorage.getItem(storageKey);
   if (!storedData) {
-    return seedData;
+    return emptyBudgetData;
   }
 
   try {
     const parsed = JSON.parse(storedData) as BudgetData;
     return repairRentSeries(
       backfillHistoricalAccounts({
-        months: Array.isArray(parsed.months) ? parsed.months : seedData.months,
-        expenses: Array.isArray(parsed.expenses) ? parsed.expenses : seedData.expenses,
+        months: Array.isArray(parsed.months) ? parsed.months : [],
+        expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
       }),
     );
   } catch {
-    return seedData;
+    return emptyBudgetData;
   }
 }
 
@@ -256,9 +259,6 @@ export function useBudgetData() {
           ...current,
           expenses: current.expenses.filter((expense) => expense.id !== expenseId),
         }));
-      },
-      resetToSeedData() {
-        setData(seedData);
       },
       restoreBudgetData(restoredData: unknown) {
         if (!isBudgetData(restoredData)) {
