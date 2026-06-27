@@ -82,6 +82,10 @@ input {
   background-color: rgba(147, 51, 234, 0.24);
 }
 
+.haunted-theme .current-month-row {
+  background-color: rgba(126, 34, 206, 0.42);
+}
+
 .haunted-theme .bg-sky-600 {
   background-color: #7e22ce;
 }

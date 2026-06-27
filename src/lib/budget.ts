@@ -246,9 +246,8 @@ export function getMonthlyTotalsToDate(
 }
 
 export function getCategoryTotals(expenses: Expense[]): CategoryTotal[] {
-  const spendingOnly = expenses.filter((expense) => expense.cost > 0);
-  const totalSpent = sumExpenses(spendingOnly);
-  const grouped = spendingOnly.reduce<Record<string, number>>((groups, expense) => {
+  const totalSpent = sumExpenses(expenses);
+  const grouped = expenses.reduce<Record<string, number>>((groups, expense) => {
     groups[expense.category] = (groups[expense.category] ?? 0) + expense.cost;
     return groups;
   }, {});
@@ -263,9 +262,8 @@ export function getCategoryTotals(expenses: Expense[]): CategoryTotal[] {
 }
 
 export function getAccountTotals(expenses: Expense[]): AccountTotal[] {
-  const spendingOnly = expenses.filter((expense) => expense.cost > 0);
-  const totalSpent = sumExpenses(spendingOnly);
-  const grouped = spendingOnly.reduce<Record<string, number>>((groups, expense) => {
+  const totalSpent = sumExpenses(expenses);
+  const grouped = expenses.reduce<Record<string, number>>((groups, expense) => {
     const account = expense.account ?? "Unassigned";
     groups[account] = (groups[account] ?? 0) + expense.cost;
     return groups;

@@ -44,7 +44,9 @@ export function MonthlyTotals({
                 <tr
                   key={month.monthKey}
                   className={`border-b border-slate-100 last:border-0 ${
-                    month.monthKey === selectedMonth ? "bg-sky-50/80" : ""
+                    month.monthKey === selectedMonth
+                      ? "current-month-row bg-sky-50/80"
+                      : ""
                   }`}
                 >
                   <td className="py-2 pr-3 font-medium text-slate-900">

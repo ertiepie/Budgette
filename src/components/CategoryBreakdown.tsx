@@ -78,6 +78,7 @@ export function CategoryBreakdown({ categoryTotals }: CategoryBreakdownProps) {
     (sum, category) => sum + category.total,
     0,
   );
+  const chartTotals = categoryTotals.filter((category) => category.total > 0);
 
   return (
     <section className="rounded-lg border border-white/70 bg-white/85 p-4 shadow-soft backdrop-blur">
@@ -88,7 +89,7 @@ export function CategoryBreakdown({ categoryTotals }: CategoryBreakdownProps) {
             <ResponsiveContainer height="100%" width="100%">
               <PieChart>
                 <Pie
-                  data={categoryTotals}
+                  data={chartTotals}
                   dataKey="total"
                   innerRadius={45}
                   nameKey="category"
@@ -97,7 +98,7 @@ export function CategoryBreakdown({ categoryTotals }: CategoryBreakdownProps) {
                   label={renderCategoryLabel}
                   labelLine={false}
                 >
-                  {categoryTotals.map((entry, index) => (
+                  {chartTotals.map((entry, index) => (
                     <Cell
                       key={entry.category}
                       fill={colors[index % colors.length]}
@@ -159,7 +160,7 @@ export function CategoryBreakdown({ categoryTotals }: CategoryBreakdownProps) {
         </>
       ) : (
         <p className="py-8 text-center text-sm text-slate-500">
-          No positive spending to categorize yet.
+          No spending to categorize yet.
         </p>
       )}
     </section>
